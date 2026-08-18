@@ -74,3 +74,42 @@ git clone https://github.com/vitrixlab-r-d-philippines/JARVIS.git
 cd JARVIS
 pip install -r requirements.txt
 python main.py
+
+## Governance Status
+
+- Repository: `vitrixLab/JARVIS`
+- Main SHA: `3f84377ec24c8d9c3fd4bf77174002af7d207026`
+- Merge authorization: `PROHIBITED`
+
+### Open PRs
+
+| PR | Title | Branch | State |
+|---|---|---|---|
+| #1 | L0 control-plane resources | `working/jarvis-l0` | OPEN / DRAFT / UNMERGED |
+| #2 | RAG documentation process | `working/governance-docs` | OPEN / DRAFT / UNMERGED |
+| #3 | Governance checks automation | `working/governance-automation` | OPEN / DRAFT / UNMERGED |
+| #4 | Governance PoC/PoW status | `working/governance-poc-pow` | OPEN / DRAFT / UNMERGED |
+| #5 | AI IDE integration matrix | `working/governance-ai-ide` | OPEN / DRAFT / UNMERGED |
+| #6 | SLA monetization roadmap | `working/governance-sla` | OPEN / DRAFT / UNMERGED |
+| #7 | External governance design patterns | `working/governance-patterns` | OPEN / DRAFT / UNMERGED |
+| #8 | JARVIS governance ledger | `working/governance-ledger` | OPEN / DRAFT / UNMERGED |
+| #9 | Facebook lead intake and API design | `working/governance-fb-intake` | OPEN / DRAFT / UNMERGED |
+| #11 | L0 per-PR preflight | `working/xrepo-l0-preflight-v2` | OPEN / DRAFT / UNMERGED |
+| #12 | NS governance summarizer proposal | `working/governance-ns-proposal` | OPEN / DRAFT / UNMERGED |
+
+### Merged
+
+| PR | Title |
+|---|---|
+| #10 | Cross-repo governance check |
+
+### Automation
+
+- Cross-repo governance workflow on `main`: active
+- L0 per-PR preflight for `stabilisation-demo`: PR branch only
+- Governance checks workflow from PR #3: not yet on `main`
+
+### Read-only / planning
+
+- Current repository posture: review-only
+- No implementation or merge authorization implied by this README status.
