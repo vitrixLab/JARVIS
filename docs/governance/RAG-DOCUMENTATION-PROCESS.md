@@ -6,8 +6,8 @@
 - Status: DRAFT
 - Repository: vitrixLab/JARVIS
 - Branch: working/governance-docs
-- Base SHA: NOT RECORDED
-- Head SHA: NOT RECORDED
+- Base SHA: 5b0a3c272b4a76fb9469ed8e185ce838912a6eb1
+- Head SHA: 928741bd3f738b8482b4b7694d0b1ad27cc79b18
 - Date: 2026-08-18
 - Authorization: AUTHORIZATION 011
 - Merge Authorization: NOT AUTHORIZED
