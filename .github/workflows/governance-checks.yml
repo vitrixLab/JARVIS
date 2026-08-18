@@ -97,36 +97,22 @@ jobs:
           check_pr() {
             local pr_number="$1"
             echo "PR #${pr_number}"
-            gh pr view "${pr_number}" \
+
+            local state
+            state=$(gh pr view "${pr_number}" \
               --repo vitrixLab/JARVIS \
-              --json number,state,isDraft,mergedAt,headRefOid,changedFiles
+              --json state,isDraft,mergedAt \
+              --jq -r '"\(.state)|\(.isDraft)|\(.mergedAt)"')
 
-            python3 - "$pr_number" <<'PY'
-import json
-import subprocess
-import sys
+            local expected
+            expected="OPEN|true|null"
 
-pr_number = sys.argv[1]
-out = subprocess.check_output([
-    "gh", "pr", "view", pr_number,
-    "--repo", "vitrixLab/JARVIS",
-    "--json", "state,isDraft,mergedAt"
-])
-data = json.loads(out)
+            if [ "$state" != "$expected" ]; then
+              echo "PR #${pr_number} governance invariant failed: ${state}"
+              exit 1
+            fi
 
-ok = (
-    data.get("state") == "OPEN"
-    and data.get("isDraft") is True
-    and data.get("mergedAt") is None
-)
-
-if not ok:
-    raise SystemExit(
-        f"PR #{pr_number} governance invariant failed: {data}"
-    )
-
-print(f"PR #{pr_number}: OPEN / DRAFT / UNMERGED")
-PY
+            echo "PR #${pr_number}: OPEN / DRAFT / UNMERGED"
           }
 
           check_pr 1
