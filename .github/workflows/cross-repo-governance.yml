@@ -35,12 +35,16 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Keep the jq input as one JSON array. Using `--jq '.[]'` here
+          # produces newline-delimited objects, which made the later `.[]`
+          # iterate over object values and fail with:
+          # Cannot index string with string "number".
           gh pr list \
             --repo vitrixLab/stabilisation-demo \
             --state open \
             --limit 100 \
             --json number,title,state,isDraft,mergeable,baseRefName,headRefName,headRefOid,changedFiles,url \
-            --jq '.[]' > /tmp/prs.json
+            > /tmp/prs.json
 
           echo "=== L0 PREFLIGHT SUMMARY ==="
 
