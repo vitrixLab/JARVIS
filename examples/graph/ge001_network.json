@@ -1,0 +1,21 @@
+{
+  "entities": [
+    {"id": "E-1", "type": "PERSON", "canonical_name": "Person A"},
+    {"id": "E-2", "type": "DOCUMENT", "canonical_name": "Document A"}
+  ],
+  "relationships": [
+    {"id": "R-1", "subject_entity_id": "E-1", "predicate": "AUTHORED", "object_entity_id": "E-2", "evidence_refs": ["EV-1"]}
+  ],
+  "claims": [
+    {"id": "C-1", "subject": "E-1", "predicate": "AUTHORED", "object_or_value": "E-2", "evidence_refs": ["EV-1"], "state": "VERIFIED"}
+  ],
+  "sources": [
+    {"id": "S-1", "identity": "local:ge001-network", "source_type": "SYNTHETIC", "locator": "examples/graph/ge001_network.json", "version": "1"}
+  ],
+  "evidence": [
+    {"id": "EV-1", "source_id": "S-1", "locator": "relationships/R-1", "extracted_content": "Person A authored Document A", "claim_refs": ["C-1"], "state": "VERIFIED", "provenance_id": "P-1"}
+  ],
+  "provenance": [
+    {"id": "P-1", "source_identity": "local:ge001-network", "version": "1"}
+  ]
+}
