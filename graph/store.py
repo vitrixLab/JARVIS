@@ -47,6 +47,33 @@ class GraphStore:
     def relationships_to(self, entity_id: str) -> list[Relationship]:
         return [r for r in self.relationships.values() if r.object_entity_id == entity_id]
 
+    def reachable_entities(self, start_entity_id: str) -> list[str]:
+        """Return deterministic, cycle-safe entity reachability.
+
+        Graph evidence may contain cycles. Traversal must terminate without repeatedly
+        reprocessing an already visited entity, so automated graph analysis cannot loop
+        indefinitely on a valid cyclic graph.
+        """
+        if start_entity_id not in self.entities:
+            return []
+
+        visited: set[str] = set()
+        queue: list[str] = [start_entity_id]
+        result: list[str] = []
+
+        while queue:
+            entity_id = queue.pop(0)
+            if entity_id in visited:
+                continue
+            visited.add(entity_id)
+            result.append(entity_id)
+            neighbors = sorted(
+                (r.object_entity_id for r in self.relationships_from(entity_id)),
+            )
+            queue.extend(neighbor for neighbor in neighbors if neighbor not in visited)
+
+        return result
+
     def claims_for(self, subject: str) -> list[Claim]:
         return [c for c in self.claims.values() if c.subject == subject]
 
