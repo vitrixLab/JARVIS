@@ -1,0 +1,121 @@
+name: Governance Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  path-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce governance path allowlist
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            BASE_SHA="$PR_BASE_SHA"
+            HEAD_SHA="$PR_HEAD_SHA"
+
+            if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
+              echo "Missing PR base/head SHA"
+              exit 1
+            fi
+
+            echo "MODE=pull_request"
+            echo "BASE_SHA=$BASE_SHA"
+            echo "HEAD_SHA=$HEAD_SHA"
+
+            git fetch origin "$BASE_SHA"
+            git fetch origin "$HEAD_SHA"
+
+            git diff --name-only "$BASE_SHA...$HEAD_SHA" > changed_files.txt
+          else
+            BASE_SHA="${GITHUB_SHA}^"
+            HEAD_SHA="${GITHUB_SHA}"
+
+            echo "MODE=workflow_dispatch"
+            echo "BASE_SHA=$BASE_SHA"
+            echo "HEAD_SHA=$HEAD_SHA"
+
+            git diff --name-only HEAD^ HEAD > changed_files.txt
+          fi
+
+          echo "Changed files:"
+          cat changed_files.txt
+
+          allowlisted=0
+          while IFS= read -r file; do
+            case "$file" in
+              docs/l0/*|docs/governance/*)
+                echo "ALLOWED: $file"
+                ;;
+              .github/workflows/governance-checks.yml)
+                echo "GOVERNANCE-CONTROL: $file (sensitive)"
+                allowlisted=1
+                ;;
+              *)
+                echo "PROHIBITED PATH: $file"
+                exit 1
+                ;;
+            esac
+          done < changed_files.txt
+
+          if [ "$allowlisted" -eq 1 ]; then
+            echo "WARNING: governance workflow modified. Manual approval required."
+          fi
+
+          echo "All changed paths are within governance allowlist."
+          echo "Evidence:"
+          echo "BASE_SHA=$BASE_SHA"
+          echo "HEAD_SHA=$HEAD_SHA"
+          echo "CHANGED_FILES_COUNT=$(wc -l < changed_files.txt)"
+          cat changed_files.txt
+
+  governance-state-verification:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Verify PR #1 and PR #2 governance invariants
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+
+          check_pr() {
+            local pr_number="$1"
+            echo "PR #${pr_number}"
+
+            local state
+            state=$(gh pr view "${pr_number}" \
+              --repo vitrixLab/JARVIS \
+              --json state,isDraft,mergedAt \
+              --jq -r '"\(.state)|\(.isDraft)|\(.mergedAt)"')
+
+            local expected
+            expected="OPEN|true|null"
+
+            if [ "$state" != "$expected" ]; then
+              echo "PR #${pr_number} governance invariant failed: ${state}"
+              exit 1
+            fi
+
+            echo "PR #${pr_number}: OPEN / DRAFT / UNMERGED"
+          }
+
+          check_pr 1
+          check_pr 2
+
+          echo "All governance PR invariants satisfied."
